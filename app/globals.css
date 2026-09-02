@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* ============================================================
+   ESTINAD Control — Monochrome Editorial Console
+   Derived from the shared ESTINAD design system (estinad-landing
+   v2 tokens): white/ivory ground, black ink, hairlines, mono meta.
+   Depth from light and shadow, never from color. Color appears
+   ONLY as restrained status semantics in badges and dots.
+   ============================================================ */
+
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #fafafa; /* alternating bands, hover rows */
+  --color-surface-2: #f5f5f5; /* recessed areas, table headers */
+  --color-card: #ffffff;
+  --color-ink: #000000;
+  --color-ink-secondary: #555555;
+  --color-muted: #737373;
+  --color-faint: #888888; /* decoration only, never text */
+  --color-line: #e5e5e5;
+  --color-line-strong: #d4d4d4;
+
+  /* Status semantics — the only chroma in the product. Desaturated,
+     console-grade tints; never used decoratively. */
+  --status-ok-fg: #1a6b45;
+  --status-ok-bg: #ebf5ef;
+  --status-warn-fg: #8a5a12;
+  --status-warn-bg: #faf3e4;
+  --status-danger-fg: #99342e;
+  --status-danger-bg: #fbeeed;
+  --status-neutral-fg: #595959;
+  --status-neutral-bg: #f0f0f0;
+  --status-info-fg: #2f4d7a;
+  --status-info-bg: #edf2f9;
+
+  --radius: 2px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.08);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-card: var(--color-card);
+  --color-ink: var(--color-ink);
+  --color-ink-secondary: var(--color-ink-secondary);
+  --color-muted: var(--color-muted);
+  --color-faint: var(--color-faint);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-ok: var(--status-ok-fg);
+  --color-warn: var(--status-warn-fg);
+  --color-danger: var(--status-danger-fg);
+  --color-info: var(--status-info-fg);
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    color-scheme: light;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01", "cv11";
+    font-size: 14px;
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border: 2px solid var(--color-bg);
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  .font-mono {
+    font-family: var(--font-mono);
+    font-feature-settings: "ss01";
+  }
+
+  /* Mono meta label — shared ESTINAD eyebrow */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .hairline {
+    border: 1px solid var(--color-line);
+  }
+  .hairline-b {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .hairline-t {
+    border-top: 1px solid var(--color-line);
+  }
+
+  .grid-backdrop {
+    background-image:
+      linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: -1px -1px;
+  }
+
+  @keyframes control-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .rise {
+    animation: control-rise 0.45s var(--ease-out) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
+  }
+}
