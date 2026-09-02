@@ -167,6 +167,7 @@ export interface LicenseFilters {
   q?: string;
   kind?: LicenseKind | "all";
   status?: LicenseStatus | "all";
+  product?: string;
 }
 
 export async function listLicenses(filters: LicenseFilters = {}) {
@@ -179,6 +180,7 @@ export async function listLicenses(filters: LicenseFilters = {}) {
 
   if (filters.kind && filters.kind !== "all") query = query.eq("kind", filters.kind);
   if (filters.status && filters.status !== "all") query = query.eq("status", filters.status);
+  if (filters.product) query = query.contains("products", [filters.product]);
   if (filters.q) {
     const term = filters.q.replace(/[%,()]/g, "");
     query = query
@@ -318,9 +320,9 @@ export async function listAuditActions(): Promise<string[]> {
   return [...new Set((data as { action: string }[]).map((r) => r.action))];
 }
 
-export async function listTenantOptions(): Promise<Pick<Tenant, "id" | "name" | "slug">[]> {
+export async function listTenantOptions(): Promise<Pick<Tenant, "id" | "name" | "slug" | "business_type">[]> {
   const db = createAdminClient();
-  const { data, error } = await db.from("tenants").select("id, name, slug").order("name");
+  const { data, error } = await db.from("tenants").select("id, name, slug, business_type").order("name");
   if (error) throw new Error(error.message);
-  return data as Pick<Tenant, "id" | "name" | "slug">[];
+  return data as Pick<Tenant, "id" | "name" | "slug" | "business_type">[];
 }

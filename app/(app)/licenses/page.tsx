@@ -19,6 +19,7 @@ import {
   Tr,
 } from "@/components/ui";
 import { Filters } from "@/components/filters";
+import { getCatalog } from "@/lib/licensing/catalog";
 import { daysUntil, formatDate, formatSeats, shortHash } from "@/lib/utils";
 import type { LicenseKind, LicenseStatus } from "@/types/database";
 
@@ -36,16 +37,18 @@ function expiryTone(days: number): string {
 export default async function LicensesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; kind?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; kind?: string; status?: string; product?: string }>;
 }) {
   await requireAdmin();
   const sp = await searchParams;
+  const catalog = await getCatalog();
   const licenses = await listLicenses({
     q: sp.q,
     kind: (KINDS as string[]).includes(sp.kind ?? "") ? (sp.kind as LicenseKind) : "all",
     status: (STATUSES as string[]).includes(sp.status ?? "")
       ? (sp.status as LicenseStatus)
       : "all",
+    product: sp.product,
   });
 
   return (
@@ -59,6 +62,15 @@ export default async function LicensesPage({
       <Filters
         searchPlaceholder="License key or device hash…"
         selects={[
+          {
+            name: "product",
+            label: "App",
+            value: sp.product ?? "all",
+            options: [
+              { value: "all", label: "All" },
+              ...catalog.map((a) => ({ value: a.id, label: a.name })),
+            ],
+          },
           {
             name: "kind",
             label: "Kind",

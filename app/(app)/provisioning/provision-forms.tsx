@@ -7,12 +7,13 @@ import type { LicenseKind } from "@/types/database";
 import { Button, Chip, Field, Input, Select } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
-const PRODUCTS = [
-  { id: "pos", label: "POS" },
-  { id: "kds", label: "KDS" },
-  { id: "waiter", label: "Waiter" },
-  { id: "store", label: "Store" },
-] as const;
+interface CatalogAppLite {
+  id: string;
+  name: string;
+  kind: string;
+  default_seats: number;
+  bundle_groups: string[];
+}
 
 const MODES = [
   { id: "tenant", label: "New tenant + license" },
@@ -21,7 +22,13 @@ const MODES = [
 
 type Mode = "tenant" | "license";
 
-export function ProvisionForms({ tenants }: { tenants: { id: string; name: string; slug: string }[] }) {
+export function ProvisionForms({
+  tenants,
+  catalog,
+}: {
+  tenants: { id: string; name: string; slug: string; business_type: string | null }[];
+  catalog: CatalogAppLite[];
+}) {
   const [mode, setMode] = useState<Mode>("tenant");
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [pending, startTransition] = useTransition();
@@ -40,15 +47,50 @@ export function ProvisionForms({ tenants }: { tenants: { id: string; name: strin
   const [kind, setKind] = useState<LicenseKind>("paid");
   const [products, setProducts] = useState<string[]>(["pos"]);
   const [featureIds, setFeatureIds] = useState("");
-  const [seatsPos, setSeatsPos] = useState(1);
-  const [seatsWaiter, setSeatsWaiter] = useState(0);
-  const [seatsKds, setSeatsKds] = useState(0);
-  const [seatsStore, setSeatsStore] = useState(0);
+  const [seats, setSeats] = useState<Record<string, number>>({});
   const [graceDays, setGraceDays] = useState(7);
   const [licenseDuration, setLicenseDuration] = useState(365);
 
-  const toggleProduct = (id: string) =>
-    setProducts((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
+  const toggle = (
+    id: string,
+    current: string[],
+    set: (v: string[]) => void,
+    seatsState: Record<string, number>,
+    setSeatsState: (v: Record<string, number>) => void,
+  ) => {
+    if (current.includes(id)) {
+      set(current.filter((p) => p !== id));
+    } else {
+      set([...current, id]);
+      const def = catalog.find((a) => a.id === id)?.default_seats ?? 1;
+      if (seatsState[id] === undefined) setSeatsState({ ...seatsState, [id]: def });
+    }
+  };
+
+  const seatValue = (id: string, seatsState: Record<string, number>) =>
+    seatsState[id] ?? catalog.find((a) => a.id === id)?.default_seats ?? 1;
+
+  const setSeat = (
+    id: string,
+    v: number,
+    seatsState: Record<string, number>,
+    setSeatsState: (v: Record<string, number>) => void,
+  ) => setSeatsState({ ...seatsState, [id]: v });
+
+  /** Bundle prefill: selecting a tenant preselects the apps of its business type. */
+  const onTenantChange = (id: string) => {
+    setTenantId(id);
+    const tenant = tenants.find((t) => t.id === id);
+    const businessType = tenant?.business_type;
+    if (!businessType) return;
+    const preset = catalog.filter((a) => a.bundle_groups.includes(businessType));
+    if (preset.length > 0) {
+      setProducts(preset.map((a) => a.id));
+      const presetSeats: Record<string, number> = {};
+      for (const a of preset) presetSeats[a.id] = a.default_seats;
+      setSeats(presetSeats);
+    }
+  };
 
   const submitTenant = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +124,9 @@ export function ProvisionForms({ tenants }: { tenants: { id: string; name: strin
         kind,
         products,
         featureIds: featureIds.split(",").map((f) => f.trim()).filter(Boolean),
-        seats: { pos: seatsPos, waiter: seatsWaiter, kds: seatsKds, store: seatsStore },
+        seats: Object.fromEntries(
+          catalog.filter((a) => products.includes(a.id)).map((a) => [a.id, seatValue(a.id, seats)]),
+        ),
         graceDays,
         durationDays: licenseDuration,
       });
@@ -137,13 +181,21 @@ export function ProvisionForms({ tenants }: { tenants: { id: string; name: strin
       ) : (
         <form onSubmit={submitLicense} className="grid gap-4 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
           <Field label="Tenant *" htmlFor="l-tenant">
-            <Select id="l-tenant" className="w-full sm:w-full" value={tenantId} onChange={(e) => setTenantId(e.target.value)} required>
+            <Select id="l-tenant" className="w-full sm:w-full" value={tenantId} onChange={(e) => onTenantChange(e.target.value)} required>
               {tenants.length === 0 ? <option value="">No tenants</option> : null}
               {tenants.map((t) => (
                 <option key={t.id} value={t.id}>{t.name} ({t.slug})</option>
               ))}
             </Select>
           </Field>
+          {tenantId && tenants.find((t) => t.id === tenantId)?.business_type ? (
+            <div className="sm:col-span-1 lg:col-span-1">
+              <span className="eyebrow mb-1.5 block">Bundle prefill</span>
+              <p className="text-xs text-muted">
+                {catalog.filter((a) => a.bundle_groups.includes(tenants.find((t) => t.id === tenantId)!.business_type!)).map((a) => a.name).join(" · ") || "pos"}
+              </p>
+            </div>
+          ) : null}
           <Field label="Kind" htmlFor="l-kind">
             <Select id="l-kind" className="w-full sm:w-full" value={kind} onChange={(e) => setKind(e.target.value as LicenseKind)}>
               <option value="paid">paid</option>
@@ -151,11 +203,16 @@ export function ProvisionForms({ tenants }: { tenants: { id: string; name: strin
             </Select>
           </Field>
           <div>
-            <span className="eyebrow mb-1.5 block">Products</span>
-            <div role="group" aria-label="Products" className="flex flex-wrap gap-1.5 pt-1">
-              {PRODUCTS.map((p) => (
-                <Chip key={p.id} active={products.includes(p.id)} onClick={() => toggleProduct(p.id)}>
-                  {p.label}
+            <span className="eyebrow mb-1.5 block">Apps *</span>
+            <div role="group" aria-label="Apps" className="flex flex-wrap gap-1.5 pt-1">
+              {catalog.map((a) => (
+                <Chip
+                  key={a.id}
+                  active={products.includes(a.id)}
+                  onClick={() => toggle(a.id, products, setProducts, seats, setSeats)}
+                  title={a.name}
+                >
+                  {a.id}
                 </Chip>
               ))}
             </div>
@@ -164,16 +221,19 @@ export function ProvisionForms({ tenants }: { tenants: { id: string; name: strin
             <Input id="l-features" value={featureIds} onChange={(e) => setFeatureIds(e.target.value)} placeholder="e.g. loyalty, offline_mode" />
           </Field>
           <div className="grid grid-cols-2 gap-2 sm:col-span-1">
-            {[
-              { id: "pos", label: "POS seats", value: seatsPos, set: setSeatsPos },
-              { id: "waiter", label: "Waiter seats", value: seatsWaiter, set: setSeatsWaiter },
-              { id: "kds", label: "KDS seats", value: seatsKds, set: setSeatsKds },
-              { id: "store", label: "Store seats", value: seatsStore, set: setSeatsStore },
-            ].map((s) => (
-              <Field key={s.id} label={s.label} htmlFor={`l-seats-${s.id}`}>
-                <Input id={`l-seats-${s.id}`} type="number" min={0} value={s.value} onChange={(e) => s.set(Number(e.target.value))} />
-              </Field>
-            ))}
+            {catalog
+              .filter((a) => products.includes(a.id))
+              .map((a) => (
+                <Field key={a.id} label={`${a.id} seats`} htmlFor={`l-seats-${a.id}`}>
+                  <Input
+                    id={`l-seats-${a.id}`}
+                    type="number"
+                    min={0}
+                    value={seatValue(a.id, seats)}
+                    onChange={(e) => setSeat(a.id, Number(e.target.value), seats, setSeats)}
+                  />
+                </Field>
+              ))}
           </div>
           <Field label="Grace days" htmlFor="l-grace">
             <Input id="l-grace" type="number" min={0} max={90} value={graceDays} onChange={(e) => setGraceDays(Number(e.target.value))} />

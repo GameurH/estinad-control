@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/rbac";
 import { listAudit, listTenantOptions } from "@/lib/licensing/queries";
+import { getCatalog } from "@/lib/licensing/catalog";
 import { ProvisionForms } from "./provision-forms";
 import {
   EmptyState,
@@ -25,9 +26,10 @@ const PROVISIONING_ACTIONS = [
 
 export default async function ProvisioningPage() {
   await requireAdmin();
-  const [tenants, history] = await Promise.all([
+  const [tenants, history, catalog] = await Promise.all([
     listTenantOptions(),
     listAudit({}, 200),
+    getCatalog(),
   ]);
 
   const provisioningHistory = history.filter((a) => PROVISIONING_ACTIONS.includes(a.action));
@@ -43,7 +45,7 @@ export default async function ProvisioningPage() {
       <PageBody>
         <Panel>
           <PanelHeader title="Provision" meta="server-side · audited" />
-          <ProvisionForms tenants={tenants} />
+          <ProvisionForms tenants={tenants} catalog={catalog} />
         </Panel>
 
         <Panel>

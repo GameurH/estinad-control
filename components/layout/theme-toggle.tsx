@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
 const STORAGE_KEY = "estinad-theme";
@@ -14,9 +14,12 @@ export function ThemeToggle() {
   const [dark, setDark] = useState<boolean | null>(null);
 
   // Sync with the class the init script already applied (client only).
-  useEffect(() => {
+  // Read-and-adjust during render avoids a cascading effect render.
+  const [applied, setApplied] = useState(false);
+  if (!applied && typeof document !== "undefined") {
+    setApplied(true);
     setDark(document.documentElement.classList.contains("dark"));
-  }, []);
+  }
 
   const toggle = () => {
     const next = !(dark ?? true);

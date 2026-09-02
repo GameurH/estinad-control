@@ -95,6 +95,22 @@ export default async function TenantDetailPage({
             </div>
           </DetailCell>
           <DetailCell label="Business type">{humanize(tenant.business_type)}</DetailCell>
+          <DetailCell label="Licensed apps">
+            {(() => {
+              const apps = [
+                ...new Set(licenses.flatMap((l) => l.products ?? [])),
+              ].sort();
+              return apps.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {apps.map((a) => (
+                    <Tag key={a}>{a}</Tag>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-faint">—</span>
+              );
+            })()}
+          </DetailCell>
           <DetailCell label="Trial ends">{formatDateTime(tenant.trial_ends_at)}</DetailCell>
           <DetailCell label="Created">{formatDateTime(tenant.created_at)}</DetailCell>
           <DetailCell label="Activated">{formatDateTime(tenant.activated_at)}</DetailCell>

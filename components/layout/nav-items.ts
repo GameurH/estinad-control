@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Building2, CreditCard, KeyRound, MonitorSmartphone,
+  LayoutDashboard, Building2, CreditCard, KeyRound, LayoutGrid, MonitorSmartphone,
   FileJson2, Rocket, ScrollText, ShieldCheck,
 } from "lucide-react";
 
@@ -9,6 +9,7 @@ export const NAV = [
   { href: "/tenants", label: "Tenants", hint: "Commercial plane", icon: Building2 },
   { href: "/subscriptions", label: "Subscriptions", hint: "Lifecycle", icon: CreditCard },
   { href: "/licenses", label: "Licenses", hint: "Keys, renewal, revocation", icon: KeyRound },
+  { href: "/apps", label: "Apps", hint: "App catalog & adoption", icon: LayoutGrid },
   { href: "/devices", label: "Devices", hint: "Bindings & validation", icon: MonitorSmartphone },
   { href: "/entitlements", label: "Entitlements", hint: "Signed snapshots", icon: FileJson2 },
   { href: "/provisioning", label: "Provisioning", hint: "New tenants & licenses", icon: Rocket },

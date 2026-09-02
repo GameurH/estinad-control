@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/rbac";
 import { audit } from "@/lib/audit";
+import { getCatalog } from "@/lib/licensing/catalog";
 import type {
   ActivateLicenseResult,
   LicenseKind,
@@ -30,11 +31,22 @@ export interface ActionResult {
      signatures are produced by the existing backend pipeline.
    ------------------------------------------------------------------ */
 
-const PRODUCT_IDS = ["pos", "kds", "waiter", "store"] as const;
-
 function fail(error: unknown, fallback: string): ActionResult {
   const msg = error instanceof Error ? error.message : fallback;
   return { ok: false, error: msg };
+}
+
+/** Validate requested products against the active app catalog. */
+async function resolveProducts(requested: string[]): Promise<{ valid: string[]; error?: string }> {
+  const catalog = await getCatalog();
+  const active = new Set(catalog.map((a) => a.id));
+  const valid = requested.filter((p) => active.has(p));
+  if (valid.length === 0) return { valid, error: "Select at least one app from the catalog." };
+  const unknown = requested.filter((p) => !active.has(p));
+  if (unknown.length > 0) {
+    return { valid, error: `Unknown app(s): ${unknown.join(", ")}.` };
+  }
+  return { valid };
 }
 
 function refresh() {
@@ -114,8 +126,8 @@ export async function issueLicenseAction(input: {
   try {
     const admin = await requirePermission("provision");
 
-    const products = input.products.filter((p) => (PRODUCT_IDS as readonly string[]).includes(p));
-    if (products.length === 0) return { ok: false, error: "Select at least one product." };
+    const { valid: products, error: productError } = await resolveProducts(input.products);
+    if (productError) return { ok: false, error: productError };
     if (input.kind === "trial" && input.durationDays > 60)
       return { ok: false, error: "Trial licenses are limited to 60 days." };
     const days = Math.floor(input.durationDays);
