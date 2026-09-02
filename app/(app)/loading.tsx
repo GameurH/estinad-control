@@ -1,17 +1,32 @@
+import { Skeleton } from "@/components/ui";
+
+/** Generic route-loading skeleton: a PageHeader-shaped block plus one Panel-shaped block. */
 export default function AppLoading() {
   return (
-    <div className="animate-pulse px-6 py-5 lg:px-8">
-      <div className="mb-2 h-3 w-24 bg-surface-2" />
-      <div className="mb-6 h-6 w-56 bg-surface-2" />
-      <div className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-card p-5">
-            <div className="mb-3 h-2.5 w-16 bg-surface-2" />
-            <div className="h-8 w-14 bg-surface-2" />
-          </div>
-        ))}
+    <div role="status" aria-live="polite" aria-busy="true">
+      <p className="sr-only">Loading…</p>
+
+      {/* PageHeader shape */}
+      <div className="hairline-b bg-bg px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+        <Skeleton className="mb-3 h-2.5 w-28" />
+        <Skeleton className="h-5 w-44 max-w-full sm:w-56" />
+        <Skeleton className="mt-2 h-3 w-72 max-w-full" />
       </div>
-      <div className="mt-6 h-64 w-full bg-surface-2" />
+
+      {/* Generic panel shape */}
+      <div className="space-y-6 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <div className="hairline bg-card shadow-card">
+          <div className="hairline-b bg-surface-2/60 px-4 py-3">
+            <Skeleton className="h-2.5 w-24" />
+          </div>
+          <div className="space-y-3 p-4 sm:p-5">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-2/3" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

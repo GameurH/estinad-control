@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/rbac";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { PlatformAdmin } from "@/types/database";
 import { OperatorsClient } from "./operators-client";
-import { PageHeader, Panel, PanelHeader, TableWrap, Td, Th, Tr, Tag, EmptyState } from "@/components/ui";
+import { PageBody, PageHeader, Panel, PanelHeader, TableWrap, Td, Th, Tr, Tag, EmptyState } from "@/components/ui";
 
 export const metadata = { title: "Operators" };
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function OperatorsPage() {
         description="Platform operators with console access. Roles are enforced server-side on every action."
       />
 
-      <div className="space-y-6 px-6 py-6 lg:px-8">
+      <PageBody>
         {isSuperAdmin ? (
           <Panel>
             <PanelHeader title="Invite operator" meta="email · audited" />
@@ -95,7 +95,7 @@ export default async function OperatorsPage() {
             </TableWrap>
           </Panel>
         ) : null}
-      </div>
+      </PageBody>
     </>
   );
 }

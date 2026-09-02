@@ -11,15 +11,17 @@ import { ActionDialog } from "@/components/action-dialog";
 import { EntitlementInspector } from "@/components/entitlement-inspector";
 import { RenewDialog, RevokeDialog } from "./license-actions";
 import {
+  ButtonLink,
   DetailCell,
   DetailGrid,
+  EmptyState,
   KindBadge,
   LicenseStatusBadge,
   Mono,
+  PageBody,
   PageHeader,
   Panel,
   PanelHeader,
-  EmptyState,
   Tag,
   TenantStatusBadge,
 } from "@/components/ui";
@@ -48,12 +50,9 @@ export default async function LicenseDetailPage({
         description={license.tenants ? `Tenant: ${license.tenants.name}` : undefined}
         actions={
           <>
-            <Link
-              href={`/tenants/${tenantId}`}
-              className="hairline h-8 bg-bg px-3 text-xs leading-8 text-muted transition-colors hover:text-ink"
-            >
+            <ButtonLink href={`/tenants/${tenantId}`} size="sm">
               Tenant →
-            </Link>
+            </ButtonLink>
             <RenewDialog
               licenseId={license.id}
               tenantId={license.tenant_id}
@@ -98,7 +97,7 @@ export default async function LicenseDetailPage({
         }
       />
 
-      <div className="space-y-6 px-6 py-6 lg:px-8">
+      <PageBody>
         <DetailGrid cols={4}>
           <DetailCell label="Status">
             <div className="flex flex-wrap items-center gap-2">
@@ -106,7 +105,7 @@ export default async function LicenseDetailPage({
               <KindBadge kind={license.kind} />
             </div>
             {license.revoked_at ? (
-              <Mono className="mt-1 block text-[0.65rem]" style={{ color: "var(--status-danger-fg)" }}>
+              <Mono className="mt-1 block text-[0.65rem] text-danger">
                 revoked {formatDate(license.revoked_at)} — {license.revocation_reason ?? "no reason recorded"}
               </Mono>
             ) : null}
@@ -114,7 +113,7 @@ export default async function LicenseDetailPage({
           <DetailCell label="Tenant">
             {license.tenants ? (
               <>
-                <Link href={`/tenants/${tenantId}`} className="font-medium hover:underline">
+                <Link href={`/tenants/${tenantId}`} className="font-medium text-ink hover:underline">
                   {license.tenants.name}
                 </Link>
                 <div className="mt-1">
@@ -153,7 +152,7 @@ export default async function LicenseDetailPage({
         {/* Device binding */}
         <Panel>
           <PanelHeader title="Device binding" meta="runtime plane" />
-          <div className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
+          <DetailGrid cols={4}>
             <DetailCell label="Device hash">
               {deviceBound ? (
                 <Mono className="break-all" title={license.device_hash!}>
@@ -175,13 +174,7 @@ export default async function LicenseDetailPage({
             </DetailCell>
             <DetailCell label="Validations">{license.validation_count ?? 0}</DetailCell>
             <DetailCell label="Failed validations">
-              <span
-                style={
-                  (license.failed_validation_count ?? 0) > 0
-                    ? { color: "var(--status-danger-fg)" }
-                    : undefined
-                }
-              >
+              <span className={(license.failed_validation_count ?? 0) > 0 ? "text-danger" : undefined}>
                 {license.failed_validation_count ?? 0}
               </span>
             </DetailCell>
@@ -190,8 +183,7 @@ export default async function LicenseDetailPage({
                 {license.device_info ? JSON.stringify(license.device_info) : "—"}
               </Mono>
             </DetailCell>
-            <div className="bg-card p-4">
-              <p className="eyebrow mb-1.5">Operations</p>
+            <DetailCell label="Operations">
               <div className="flex flex-wrap gap-2">
                 {deviceBound ? (
                   <ActionDialog
@@ -224,8 +216,8 @@ export default async function LicenseDetailPage({
                   </p>
                 ) : null}
               </div>
-            </div>
-          </div>
+            </DetailCell>
+          </DetailGrid>
         </Panel>
 
         {/* Entitlement inspection */}
@@ -245,11 +237,11 @@ export default async function LicenseDetailPage({
           {audit.length === 0 ? (
             <EmptyState title="No audit entries reference this license." />
           ) : (
-            <ul className="divide-y divide-[var(--color-line)]">
+            <ul className="divide-y divide-line">
               {audit.map((a) => (
                 <li key={a.id} className="px-4 py-3">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <div className="flex flex-wrap items-baseline gap-2">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <div className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-1">
                       <Mono className="text-ink">{humanize(a.action)}</Mono>
                       {a.actor_email ? (
                         <Mono className="text-[0.65rem] text-faint">{shortHash(a.actor_email, 26)}</Mono>
@@ -260,7 +252,7 @@ export default async function LicenseDetailPage({
                     <Mono className="text-[0.65rem] text-faint">{formatDateTime(a.created_at)}</Mono>
                   </div>
                   {a.details ? (
-                    <p className="mt-1 break-all font-mono text-[0.65rem] text-muted">
+                    <p className="mt-1.5 break-all font-mono text-[0.65rem] leading-relaxed text-muted">
                       {JSON.stringify(a.details)}
                     </p>
                   ) : null}
@@ -269,7 +261,7 @@ export default async function LicenseDetailPage({
             </ul>
           )}
         </Panel>
-      </div>
+      </PageBody>
     </>
   );
 }

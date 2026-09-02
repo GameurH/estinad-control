@@ -1,41 +1,52 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ESTINAD Control — Monochrome Editorial Console
-   Derived from the shared ESTINAD design system (estinad-landing
-   v2 tokens): white/ivory ground, black ink, hairlines, mono meta.
-   Depth from light and shadow, never from color. Color appears
-   ONLY as restrained status semantics in badges and dots.
+   ESTINAD Control — Dark Architectural Console
+   Near-black warm charcoal ground, warm ivory ink, muted gray
+   hierarchy, one restrained brass accent for primary actions.
+   Depth from hairlines and elevation, never from color. Color
+   appears only as restrained status semantics.
    ============================================================ */
 
 :root {
-  --color-bg: #ffffff;
-  --color-surface: #fafafa; /* alternating bands, hover rows */
-  --color-surface-2: #f5f5f5; /* recessed areas, table headers */
-  --color-card: #ffffff;
-  --color-ink: #000000;
-  --color-ink-secondary: #555555;
-  --color-muted: #737373;
-  --color-faint: #888888; /* decoration only, never text */
-  --color-line: #e5e5e5;
-  --color-line-strong: #d4d4d4;
+  /* Ground — warm charcoal scale, lightness carries hierarchy */
+  --color-bg: #141312;
+  --color-surface: #1a1917; /* hover rows, alternating bands */
+  --color-surface-2: #201e1c; /* recessed areas, table headers, inputs */
+  --color-card: #191817;
 
-  /* Status semantics — the only chroma in the product. Desaturated,
-     console-grade tints; never used decoratively. */
-  --status-ok-fg: #1a6b45;
-  --status-ok-bg: #ebf5ef;
-  --status-warn-fg: #8a5a12;
-  --status-warn-bg: #faf3e4;
-  --status-danger-fg: #99342e;
-  --status-danger-bg: #fbeeed;
-  --status-neutral-fg: #595959;
-  --status-neutral-bg: #f0f0f0;
-  --status-info-fg: #2f4d7a;
-  --status-info-bg: #edf2f9;
+  /* Ink — warm ivory foreground, muted gray hierarchy */
+  --color-ink: #ede8df;
+  --color-ink-secondary: #b8b0a4;
+  --color-muted: #8b8478;
+  --color-faint: #6e675d; /* decoration and micro-meta only */
+
+  /* Hairlines */
+  --color-line: #2a2825;
+  --color-line-strong: #3b3833;
+
+  /* Accent — the single chromatic voice for primary actions.
+     Never used decoratively, never for large surfaces. */
+  --color-accent: #c99e63;
+  --color-accent-hover: #d8ad72;
+  --color-accent-ink: #171410; /* text rendered on accent */
+
+  /* Status semantics — the only other chroma. Desaturated,
+     console-grade; foreground/background pairs. */
+  --status-ok-fg: #85bd97;
+  --status-ok-bg: #1d2b22;
+  --status-warn-fg: #d2ab64;
+  --status-warn-bg: #2b2415;
+  --status-danger-fg: #d98b80;
+  --status-danger-bg: #32201d;
+  --status-neutral-fg: #a39b8f;
+  --status-neutral-bg: #262420;
+  --status-info-fg: #93a9cc;
+  --status-info-bg: #202836;
 
   --radius: 2px;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.08);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  --shadow-lift: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.45);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -53,10 +64,19 @@
   --color-faint: var(--color-faint);
   --color-line: var(--color-line);
   --color-line-strong: var(--color-line-strong);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-ink: var(--color-accent-ink);
   --color-ok: var(--status-ok-fg);
+  --color-ok-bg: var(--status-ok-bg);
   --color-warn: var(--status-warn-fg);
+  --color-warn-bg: var(--status-warn-bg);
   --color-danger: var(--status-danger-fg);
+  --color-danger-bg: var(--status-danger-bg);
   --color-info: var(--status-info-fg);
+  --color-info-bg: var(--status-info-bg);
+  --color-neutral: var(--status-neutral-fg);
+  --color-neutral-bg: var(--status-neutral-bg);
   --shadow-card: var(--shadow-card);
   --shadow-lift: var(--shadow-lift);
   --font-sans: var(--font-geist-sans);
@@ -73,7 +93,8 @@
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    color-scheme: light;
+    color-scheme: dark;
+    overflow-x: clip;
   }
 
   body {
@@ -82,15 +103,16 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv01", "cv11";
     font-size: 14px;
+    overflow-x: clip;
   }
 
   ::selection {
-    background: var(--color-ink);
-    color: var(--color-bg);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
 
@@ -105,6 +127,17 @@
     background: var(--color-line-strong);
     border: 2px solid var(--color-bg);
     border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-faint);
+  }
+
+  /* Safe-area padding for standalone / notched devices */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
   }
 }
 
@@ -132,6 +165,9 @@
   .hairline-t {
     border-top: 1px solid var(--color-line);
   }
+  .hairline-e {
+    border-right: 1px solid var(--color-line);
+  }
 
   .grid-backdrop {
     background-image:
@@ -141,11 +177,11 @@
     background-position: -1px -1px;
   }
 
-  /* Logo lockup — light theme treatment (multiply + invert leaves the
-     monogram geometry; shared ESTINAD rule from estinad-landing). */
+  /* Logo lockup — dark theme: the light plate mark reads as-is on the
+     charcoal ground with a soft screen blend to drop the plate edges. */
   .logo-lockup-image {
-    mix-blend-mode: multiply;
-    filter: invert(1);
+    mix-blend-mode: screen;
+    filter: invert(1) contrast(1.05);
   }
 
   @keyframes control-rise {
@@ -162,8 +198,21 @@
     animation: control-rise 0.45s var(--ease-out) both;
   }
 
+  @keyframes control-slide-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  .slide-in {
+    animation: control-slide-in 0.25s var(--ease-out) both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .rise {
+    .rise,
+    .slide-in {
       animation: none;
     }
   }

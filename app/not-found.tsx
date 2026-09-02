@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ButtonLink } from "@/components/ui";
 
 export default function NotFound() {
   return (
@@ -11,12 +11,11 @@ export default function NotFound() {
         <p className="mt-2 text-sm text-muted">
           The tenant, license, or page you requested is not available.
         </p>
-        <Link
-          href="/dashboard"
-          className="mt-6 inline-block h-9 bg-ink px-4 text-xs font-medium leading-9 text-bg transition-opacity hover:opacity-90"
-        >
-          Back to dashboard
-        </Link>
+        <div className="mt-6">
+          <ButtonLink href="/dashboard" variant="primary">
+            Back to dashboard
+          </ButtonLink>
+        </div>
       </div>
     </div>
   );

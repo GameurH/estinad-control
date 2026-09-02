@@ -2,13 +2,16 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/rbac";
 import { listEntitlements } from "@/lib/licensing/queries";
 import {
+  ButtonLink,
   EmptyState,
   KindBadge,
   LicenseStatusBadge,
   Mono,
+  PageBody,
   PageHeader,
   Panel,
   PanelHeader,
+  Stat,
   Tag,
 } from "@/components/ui";
 import { EntitlementInspector } from "@/components/entitlement-inspector";
@@ -38,21 +41,15 @@ export default async function EntitlementsPage({
 
       <Filters searchPlaceholder="License key…" />
 
-      <div className="space-y-6 px-6 py-6 lg:px-8">
+      <PageBody>
         <div className="grid gap-px bg-line sm:grid-cols-3">
-          <div className="hairline bg-card p-5">
-            <p className="eyebrow">Licenses in view</p>
-            <p className="mt-3 font-mono text-3xl tracking-tight">{licenses.length}</p>
-          </div>
-          <div className="hairline bg-card p-5">
-            <p className="eyebrow">Signed snapshots</p>
-            <p className="mt-3 font-mono text-3xl tracking-tight">{signed}</p>
-          </div>
-          <div className="hairline bg-card p-5">
-            <p className="eyebrow">Awaiting activation</p>
-            <p className="mt-3 font-mono text-3xl tracking-tight">{licenses.length - signed}</p>
-            <p className="mt-1 text-xs text-muted">Snapshot is built on first activation/validation.</p>
-          </div>
+          <Stat label="Licenses in view" value={licenses.length} />
+          <Stat label="Signed snapshots" value={signed} />
+          <Stat
+            label="Awaiting activation"
+            value={licenses.length - signed}
+            meta="Snapshot is built on first activation/validation."
+          />
         </div>
 
         {licenses.length === 0 ? (
@@ -72,19 +69,19 @@ export default async function EntitlementsPage({
                     {(l.products ?? []).map((p) => (
                       <Tag key={p}>{p}</Tag>
                     ))}
-                    <Link
-                      href={`/licenses/${l.id}`}
-                      className="text-xs text-muted underline hover:text-ink"
-                    >
+                    <ButtonLink href={`/licenses/${l.id}`} variant="secondary" size="sm">
                       License →
-                    </Link>
+                    </ButtonLink>
                   </div>
                 }
               />
               <div className="p-4">
                 <div className="mb-3 flex flex-wrap items-center gap-3 text-sm">
                   {l.tenants ? (
-                    <Link href={`/tenants/${l.tenants.id}`} className="font-medium hover:underline">
+                    <Link
+                      href={`/tenants/${l.tenants.id}`}
+                      className="font-medium text-ink hover:underline"
+                    >
                       {l.tenants.name}
                     </Link>
                   ) : null}
@@ -98,7 +95,7 @@ export default async function EntitlementsPage({
             </Panel>
           ))
         )}
-      </div>
+      </PageBody>
     </>
   );
 }

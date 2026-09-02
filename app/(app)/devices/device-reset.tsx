@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { resetDeviceAction } from "@/lib/licensing/actions";
+import { Button, Field, Input } from "@/components/ui";
 
 /** Reset a device by hash via the existing reset_device_license RPC. */
 export function DeviceResetForm() {
@@ -27,37 +28,33 @@ export function DeviceResetForm() {
   return (
     <form onSubmit={submit} className="px-4 py-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="min-w-72 flex-1">
-          <label htmlFor="device-hash" className="eyebrow mb-1.5 block">
-            Device hash
-          </label>
-          <input
+        <Field label="Device hash" htmlFor="device-hash" className="w-full sm:min-w-72 sm:flex-1">
+          <Input
             id="device-hash"
             value={hash}
             onChange={(e) => setHash(e.target.value)}
             placeholder="sha256 device fingerprint"
-            className="hairline h-9 w-full bg-surface px-3 font-mono text-xs text-ink placeholder:text-faint focus:outline-none"
+            className="font-mono text-xs"
             autoComplete="off"
             required
           />
-        </div>
-        <button
+        </Field>
+        <Button
           type="submit"
+          variant="secondary"
           disabled={pending || hash.trim().length === 0}
-          className="hairline h-9 bg-bg px-4 text-xs font-medium text-ink transition-colors hover:bg-surface disabled:opacity-40"
         >
           {pending ? "Resetting…" : "Reset device"}
-        </button>
+        </Button>
       </div>
-      <p className="mt-2 text-xs text-muted">
+      <p className="mt-3 text-xs text-muted">
         Delegates to the existing backend RPC: active trial licenses on the device are revoked,
         active paid licenses are unbound.
       </p>
       {message ? (
         <p
-          role="status"
-          className="mt-3 text-sm"
-          style={{ color: message.ok ? "var(--status-ok-fg)" : "var(--status-danger-fg)" }}
+          role={message.ok ? "status" : "alert"}
+          className={message.ok ? "mt-3 text-sm text-ok" : "mt-3 text-sm text-danger"}
         >
           {message.text}
         </p>

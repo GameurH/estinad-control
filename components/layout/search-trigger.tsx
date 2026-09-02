@@ -12,12 +12,12 @@ export function SearchTrigger() {
           new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }),
         );
       }}
-      className="hairline hidden h-8 w-64 items-center gap-2 bg-surface px-3 text-xs text-muted transition-colors hover:bg-surface-2 sm:flex"
       aria-label="Open command palette"
+      className="hairline inline-flex h-10 items-center gap-2 bg-surface-2/50 px-3 text-xs text-muted transition-colors hover:bg-surface-2 hover:text-ink sm:h-8"
     >
-      <Search size={13} aria-hidden />
-      <span className="flex-1 text-left">Search sections…</span>
-      <kbd className="font-mono text-[0.6rem] text-faint">⌘K</kbd>
+      <Search size={13} className="shrink-0" aria-hidden />
+      <span className="hidden flex-1 text-left sm:block">Search sections…</span>
+      <kbd className="hidden font-mono text-[0.65rem] text-faint sm:block">⌘K</kbd>
     </button>
   );
 }

@@ -5,21 +5,25 @@ import { getTenantDetail } from "@/lib/licensing/queries";
 import { setTenantStatusAction } from "@/lib/licensing/actions";
 import { ActionDialog } from "@/components/action-dialog";
 import {
+  ButtonLink,
+  CardList,
+  CardRow,
   DetailCell,
   DetailGrid,
+  EmptyState,
   KindBadge,
   LicenseStatusBadge,
   Mono,
+  PageBody,
   PageHeader,
   Panel,
   PanelHeader,
-  TenantStatusBadge,
   TableWrap,
+  Tag,
   Td,
   Th,
+  TenantStatusBadge,
   Tr,
-  EmptyState,
-  Tag,
 } from "@/components/ui";
 import { formatDate, formatDateTime, formatRelative, formatSeats, humanize } from "@/lib/utils";
 
@@ -76,17 +80,14 @@ export default async function TenantDetailPage({
                 action={setTenantStatusAction.bind(null, { tenantId: tenant.id, status: "cancelled" })}
               />
             ) : null}
-            <Link
-              href="/provisioning"
-              className="h-8 bg-ink px-3 text-xs font-medium leading-8 text-bg transition-opacity hover:opacity-90"
-            >
+            <ButtonLink href="/provisioning" variant="primary" size="sm">
               Issue license
-            </Link>
+            </ButtonLink>
           </>
         }
       />
 
-      <div className="space-y-6 px-6 py-6 lg:px-8">
+      <PageBody>
         <DetailGrid cols={4}>
           <DetailCell label="Status">
             <div className="flex items-center gap-2">
@@ -99,7 +100,9 @@ export default async function TenantDetailPage({
           <DetailCell label="Activated">{formatDateTime(tenant.activated_at)}</DetailCell>
           <DetailCell label="Suspended">{formatDateTime(tenant.suspended_at)}</DetailCell>
           <DetailCell label="Cancelled">{formatDateTime(tenant.cancelled_at)}</DetailCell>
-          <DetailCell label="Owner phone">{tenant.owner_phone ?? "—"}</DetailCell>
+          <DetailCell label="Owner phone">
+            {tenant.owner_phone ?? <span className="text-faint">—</span>}
+          </DetailCell>
         </DetailGrid>
 
         <Panel>
@@ -110,87 +113,174 @@ export default async function TenantDetailPage({
               description="Issue one from the Provisioning section."
             />
           ) : (
-            <TableWrap>
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <Th>License key</Th>
-                    <Th>Kind</Th>
-                    <Th>Status</Th>
-                    <Th>Products</Th>
-                    <Th>Seats</Th>
-                    <Th>Device</Th>
-                    <Th>Issued</Th>
-                    <Th>Expires</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {licenses.map((l) => (
-                    <Tr key={l.id}>
-                      <Td>
-                        <Link
-                          href={`/licenses/${l.id}`}
-                          className="font-mono text-xs text-ink hover:underline"
-                        >
-                          {l.license_key}
-                        </Link>
-                      </Td>
-                      <Td>
+            <>
+              {/* Table — md and up */}
+              <div className="hidden md:block">
+                <TableWrap>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        <Th scope="col">License key</Th>
+                        <Th scope="col">Kind</Th>
+                        <Th scope="col">Status</Th>
+                        <Th scope="col">Products</Th>
+                        <Th scope="col">Seats</Th>
+                        <Th scope="col">Device</Th>
+                        <Th scope="col">Issued</Th>
+                        <Th scope="col">Expires</Th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {licenses.map((l) => (
+                        <Tr key={l.id}>
+                          <Td>
+                            <Link
+                              href={`/licenses/${l.id}`}
+                              className="block max-w-[16rem] truncate font-mono text-xs text-ink hover:underline"
+                            >
+                              {l.license_key}
+                            </Link>
+                          </Td>
+                          <Td>
+                            <KindBadge kind={l.kind} />
+                          </Td>
+                          <Td>
+                            <LicenseStatusBadge status={l.status} />
+                          </Td>
+                          <Td>
+                            <div className="flex flex-wrap gap-1">
+                              {(l.products ?? []).map((p) => (
+                                <Tag key={p}>{p}</Tag>
+                              ))}
+                            </div>
+                          </Td>
+                          <Td className="text-ink-secondary">{formatSeats(l.seats)}</Td>
+                          <Td className="font-mono text-xs text-ink-secondary">
+                            {l.device_hash
+                              ? l.device_hash === ""
+                                ? "unbound"
+                                : l.device_hash.slice(0, 10) + "…"
+                              : "—"}
+                          </Td>
+                          <Td className="text-ink-secondary">{formatDate(l.issued_at)}</Td>
+                          <Td className="text-ink-secondary">{formatDate(l.expires_at)}</Td>
+                        </Tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrap>
+              </div>
+
+              {/* Cards — mobile */}
+              <CardList>
+                {licenses.map((l) => (
+                  <CardRow key={l.id}>
+                    <div className="flex items-start justify-between gap-3">
+                      <Link
+                        href={`/licenses/${l.id}`}
+                        className="min-w-0 break-all font-mono text-xs text-ink hover:underline"
+                      >
+                        {l.license_key}
+                      </Link>
+                      <div className="flex shrink-0 gap-1.5">
                         <KindBadge kind={l.kind} />
-                      </Td>
-                      <Td>
                         <LicenseStatusBadge status={l.status} />
-                      </Td>
-                      <Td>
-                        <div className="flex flex-wrap gap-1">
-                          {(l.products ?? []).map((p) => (
-                            <Tag key={p}>{p}</Tag>
-                          ))}
-                        </div>
-                      </Td>
-                      <Td className="text-ink-secondary">{formatSeats(l.seats)}</Td>
-                      <Td className="font-mono text-xs text-ink-secondary">
-                        {l.device_hash ? (l.device_hash === "" ? "unbound" : l.device_hash.slice(0, 10) + "…") : "—"}
-                      </Td>
-                      <Td className="text-ink-secondary">{formatDate(l.issued_at)}</Td>
-                      <Td className="text-ink-secondary">{formatDate(l.expires_at)}</Td>
-                    </Tr>
-                  ))}
-                </tbody>
-              </table>
-            </TableWrap>
+                      </div>
+                    </div>
+
+                    {(l.products ?? []).length > 0 ? (
+                      <div className="mt-2.5 flex flex-wrap gap-1">
+                        {(l.products ?? []).map((p) => (
+                          <Tag key={p}>{p}</Tag>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    <dl className="hairline-t mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 pt-3 text-xs">
+                      <div className="min-w-0">
+                        <dt className="eyebrow">Seats</dt>
+                        <dd className="mt-1 text-ink-secondary">{formatSeats(l.seats)}</dd>
+                      </div>
+                      <div className="min-w-0">
+                        <dt className="eyebrow">Device</dt>
+                        <dd className="mt-1 font-mono text-ink-secondary">
+                          {l.device_hash
+                            ? l.device_hash === ""
+                              ? "unbound"
+                              : l.device_hash.slice(0, 10) + "…"
+                            : "—"}
+                        </dd>
+                      </div>
+                      <div className="min-w-0">
+                        <dt className="eyebrow">Issued</dt>
+                        <dd className="mt-1 text-ink-secondary">{formatDate(l.issued_at)}</dd>
+                      </div>
+                      <div className="min-w-0">
+                        <dt className="eyebrow">Expires</dt>
+                        <dd className="mt-1 text-ink-secondary">{formatDate(l.expires_at)}</dd>
+                      </div>
+                    </dl>
+                  </CardRow>
+                ))}
+              </CardList>
+            </>
           )}
         </Panel>
 
         {owners.length > 0 ? (
           <Panel>
             <PanelHeader title="Owners" meta="tenant_owners" />
-            <TableWrap>
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <Th>User</Th>
-                    <Th>Role</Th>
-                    <Th>Invited</Th>
-                    <Th>Accepted</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {owners.map((o) => (
-                    <Tr key={o.id}>
-                      <Td>
-                        <Mono>{o.user_id.slice(0, 8)}…</Mono>
-                      </Td>
-                      <Td>
-                        <Tag>{o.role}</Tag>
-                      </Td>
-                      <Td className="text-ink-secondary">{formatDate(o.invited_at)}</Td>
-                      <Td className="text-ink-secondary">{formatDate(o.accepted_at)}</Td>
-                    </Tr>
-                  ))}
-                </tbody>
-              </table>
-            </TableWrap>
+            {/* Table — md and up */}
+            <div className="hidden md:block">
+              <TableWrap>
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <Th scope="col">User</Th>
+                      <Th scope="col">Role</Th>
+                      <Th scope="col">Invited</Th>
+                      <Th scope="col">Accepted</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {owners.map((o) => (
+                      <Tr key={o.id}>
+                        <Td>
+                          <Mono>{o.user_id.slice(0, 8)}…</Mono>
+                        </Td>
+                        <Td>
+                          <Tag>{o.role}</Tag>
+                        </Td>
+                        <Td className="text-ink-secondary">{formatDate(o.invited_at)}</Td>
+                        <Td className="text-ink-secondary">{formatDate(o.accepted_at)}</Td>
+                      </Tr>
+                    ))}
+                  </tbody>
+                </table>
+              </TableWrap>
+            </div>
+
+            {/* Cards — mobile */}
+            <CardList>
+              {owners.map((o) => (
+                <CardRow key={o.id}>
+                  <div className="flex items-center justify-between gap-3">
+                    <Mono className="min-w-0 truncate">{o.user_id.slice(0, 8)}…</Mono>
+                    <Tag>{o.role}</Tag>
+                  </div>
+                  <dl className="hairline-t mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 pt-3 text-xs">
+                    <div className="min-w-0">
+                      <dt className="eyebrow">Invited</dt>
+                      <dd className="mt-1 text-ink-secondary">{formatDate(o.invited_at)}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="eyebrow">Accepted</dt>
+                      <dd className="mt-1 text-ink-secondary">{formatDate(o.accepted_at)}</dd>
+                    </div>
+                  </dl>
+                </CardRow>
+              ))}
+            </CardList>
           </Panel>
         ) : null}
 
@@ -199,21 +289,25 @@ export default async function TenantDetailPage({
           {audit.length === 0 ? (
             <EmptyState title="No audit entries for this tenant." />
           ) : (
-            <ul className="divide-y divide-[var(--color-line)]">
+            <ul className="divide-y divide-line">
               {audit.map((a) => (
                 <li key={a.id} className="px-4 py-3">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <div className="flex flex-wrap items-baseline gap-2">
-                      <Mono className="text-ink">{humanize(a.action)}</Mono>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <div className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                      <Mono className="text-[0.65rem] font-medium text-ink">
+                        {humanize(a.action)}
+                      </Mono>
                       <Tag>{a.actor_type}</Tag>
-                      {a.actor_email ? <Mono className="text-[0.65rem] text-faint">{a.actor_email}</Mono> : null}
+                      {a.actor_email ? (
+                        <Mono className="break-all text-[0.65rem] text-faint">{a.actor_email}</Mono>
+                      ) : null}
                     </div>
-                    <Mono className="text-[0.65rem] text-faint">
+                    <Mono className="shrink-0 text-[0.65rem] text-faint">
                       {formatDateTime(a.created_at)} · {formatRelative(a.created_at)}
                     </Mono>
                   </div>
                   {a.details && Object.keys(a.details).length > 0 ? (
-                    <p className="mt-1 break-all font-mono text-[0.65rem] leading-relaxed text-muted">
+                    <p className="mt-1.5 break-all font-mono text-[0.65rem] leading-relaxed text-muted">
                       {JSON.stringify(a.details)}
                     </p>
                   ) : null}
@@ -222,7 +316,7 @@ export default async function TenantDetailPage({
             </ul>
           )}
         </Panel>
-      </div>
+      </PageBody>
     </>
   );
 }

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { signInAction, type AuthState } from "./actions";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { Button, Field, Input } from "@/components/ui";
 
 const initial: AuthState = {};
 
@@ -55,68 +56,56 @@ export function LoginForm({ oauthError }: { oauthError?: string }) {
 
   return (
     <div className="grid gap-5">
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="lg"
         onClick={signInWithGoogle}
         disabled={googlePending || pending}
-        className="hairline flex h-11 items-center justify-center gap-2 bg-bg text-sm font-medium text-ink transition-colors hover:bg-surface disabled:opacity-50"
+        className="w-full"
       >
         <GoogleIcon />
         {googlePending ? "Redirecting to Google…" : "Continue with Google"}
-      </button>
+      </Button>
 
       <div className="flex items-center gap-3" aria-hidden>
-        <span className="h-px flex-1 bg-[var(--color-line)]" />
+        <span className="h-px flex-1 bg-line" />
         <span className="eyebrow">or email</span>
-        <span className="h-px flex-1 bg-[var(--color-line)]" />
+        <span className="h-px flex-1 bg-line" />
       </div>
 
       <form action={formAction} className="grid gap-5">
-        <div className="grid gap-2">
-          <label htmlFor="email" className="eyebrow">
-            Operator email
-          </label>
-          <input
+        <Field label="Operator email" htmlFor="email">
+          <Input
             id="email"
             name="email"
             type="email"
             required
             autoComplete="email"
             placeholder="operator@estinad.com"
-            className="h-11 bg-surface px-3 hairline text-sm text-ink placeholder:text-faint"
+            className="h-11"
           />
-        </div>
-        <div className="grid gap-2">
-          <label htmlFor="password" className="eyebrow">
-            Password
-          </label>
-          <input
+        </Field>
+        <Field label="Password" htmlFor="password">
+          <Input
             id="password"
             name="password"
             type="password"
             required
             autoComplete="current-password"
-            className="h-11 bg-surface px-3 hairline text-sm text-ink"
+            className="h-11"
           />
-        </div>
+        </Field>
 
-        <button
-          type="submit"
-          disabled={pending || googlePending}
-          className="h-11 bg-ink px-5 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
+        <Button type="submit" variant="primary" size="lg" disabled={pending || googlePending}>
           {pending ? "Authenticating…" : "Sign in"}
-        </button>
+        </Button>
       </form>
 
       {error ? (
         <p
           role="alert"
-          className="border px-3 py-2 text-sm"
-          style={{
-            color: "var(--status-danger-fg)",
-            borderColor: "var(--status-danger-fg)",
-          }}
+          className="border border-danger bg-danger-bg px-3 py-2 text-sm text-danger"
         >
           {error}
         </p>

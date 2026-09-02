@@ -15,7 +15,7 @@ export default async function LoginPage({
     <main className="relative grid min-h-screen place-items-center overflow-hidden bg-bg px-6">
       <div className="grid-backdrop absolute inset-0 opacity-40" aria-hidden />
       <div className="rise relative w-full max-w-sm">
-        <div className="hairline bg-card p-8 shadow-lift">
+        <div className="hairline bg-card p-6 shadow-lift sm:p-8">
           <div className="mb-8">
             <Monogram className="mb-4 h-9 w-9" alt="ESTINAD" />
             <p className="eyebrow mb-3">ESTINAD · Internal</p>

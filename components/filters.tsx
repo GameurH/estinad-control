@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Search } from "lucide-react";
+import { Select } from "@/components/ui";
 
 export interface FilterSelect {
   name: string;
@@ -16,13 +17,9 @@ export interface FilterSelect {
  * searchParams, so filters are shareable, bookmarkable, and SSR-fast.
  */
 export function Filters({
-  searchPlaceholder,
-  searchKey = "q",
-  selects = [],
+  searchPlaceholder, searchKey = "q", selects = [],
 }: {
-  searchPlaceholder?: string;
-  searchKey?: string;
-  selects?: FilterSelect[];
+  searchPlaceholder?: string; searchKey?: string; selects?: FilterSelect[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,9 +46,9 @@ export function Filters({
   };
 
   return (
-    <div className="hairline-b flex flex-wrap items-center gap-3 px-6 py-3 lg:px-8" role="search">
-      <div className="hairline flex h-9 min-w-56 flex-1 items-center gap-2 bg-surface px-3 sm:max-w-sm">
-        <Search size={13} className="text-faint" aria-hidden />
+    <div className="hairline-b flex flex-wrap items-center gap-x-3 gap-y-2.5 px-4 py-3 sm:px-6 lg:px-8" role="search">
+      <div className="hairline flex h-10 min-w-0 flex-1 items-center gap-2 bg-surface-2/50 px-3 focus-within:border-line-strong sm:h-9 sm:max-w-sm">
+        <Search size={13} className="shrink-0 text-faint" aria-hidden />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -70,22 +67,24 @@ export function Filters({
 
       {selects.map((s) => (
         <label key={s.name} className="flex items-center gap-2">
-          <span className="eyebrow">{s.label}</span>
-          <select
+          <span className="eyebrow hidden sm:block">{s.label}</span>
+          <Select
             value={s.value}
             onChange={(e) => push({ [s.name]: e.target.value })}
-            className="hairline h-9 bg-surface px-2 text-sm text-ink focus:outline-none"
+            aria-label={s.label}
           >
             {s.options.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
+              <option key={o.value} value={o.value}>{o.label}</option>
             ))}
-          </select>
+          </Select>
         </label>
       ))}
 
-      {pending ? <span className="font-mono text-[0.65rem] text-faint">filtering…</span> : null}
+      {pending ? (
+        <span className="font-mono text-[0.65rem] text-faint" role="status" aria-live="polite">
+          filtering…
+        </span>
+      ) : null}
     </div>
   );
 }

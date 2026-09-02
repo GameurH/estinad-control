@@ -1,31 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, CornerDownLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NAV, SUPER_ADMIN_NAV } from "./nav-items";
 
-const COMMANDS = [
-  { href: "/dashboard", label: "Dashboard", hint: "Overview" },
-  { href: "/tenants", label: "Tenants", hint: "Commercial plane" },
-  { href: "/subscriptions", label: "Subscriptions", hint: "Lifecycle" },
-  { href: "/licenses", label: "Licenses", hint: "Keys, renewal, revocation" },
-  { href: "/devices", label: "Devices", hint: "Bindings & validation" },
-  { href: "/entitlements", label: "Entitlements", hint: "Signed snapshots" },
-  { href: "/provisioning", label: "Provisioning", hint: "New tenants & licenses" },
-  { href: "/audit", label: "Audit Log", hint: "Every action" },
-] as const;
-
-export function CommandPalette() {
+export function CommandPalette({ showOperators = false }: { showOperators?: boolean }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
   const router = useRouter();
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const COMMANDS = useMemo(
+    () => (showOperators ? [...NAV, ...SUPER_ADMIN_NAV] : NAV),
+    [showOperators],
+  );
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((v) => !v);
+        setQuery("");
+        setActive(0);
       }
       if (e.key === "Escape") setOpen(false);
     };
@@ -36,14 +35,37 @@ export function CommandPalette() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return COMMANDS;
-    return COMMANDS.filter((c) => c.label.toLowerCase().includes(q));
-  }, [query]);
+    return COMMANDS.filter(
+      (c) =>
+        c.label.toLowerCase().includes(q) ||
+        c.hint.toLowerCase().includes(q),
+    );
+  }, [query, COMMANDS]);
 
   if (!open) return null;
 
+  const go = (href: string) => {
+    setOpen(false);
+    router.push(href);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((i) => Math.min(i + 1, results.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const target = results[active] ?? results[0];
+      if (target) go(target.href);
+    }
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/30 px-4 pt-[15vh]"
+      className="fixed inset-0 z-50 bg-black/60 px-4 pt-[12vh]"
       onClick={() => setOpen(false)}
       role="presentation"
     >
@@ -55,47 +77,48 @@ export function CommandPalette() {
         aria-label="Command palette"
       >
         <div className="hairline-b flex items-center gap-3 px-4">
-          <Search size={15} className="text-faint" aria-hidden />
+          <Search size={15} className="shrink-0 text-faint" aria-hidden />
           <input
             autoFocus
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && results[0]) {
-                setOpen(false);
-                setQuery("");
-                router.push(results[0].href);
-              }
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActive(0);
             }}
+            onKeyDown={onKeyDown}
             placeholder="Go to…"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-list"
+            aria-activedescendant={results[active] ? `command-option-${active}` : undefined}
             className="h-11 w-full bg-transparent text-sm text-ink placeholder:text-faint focus:outline-none"
           />
-          <kbd className="font-mono text-[0.6rem] uppercase tracking-widest text-faint">esc</kbd>
+          <kbd className="hidden shrink-0 font-mono text-[0.65rem] uppercase tracking-widest text-faint sm:block">
+            esc
+          </kbd>
         </div>
-        <ul className="max-h-72 overflow-y-auto py-1">
+        <ul id="command-palette-list" ref={listRef} className="max-h-72 overflow-y-auto py-1">
           {results.length === 0 ? (
             <li className="px-4 py-6 text-center text-sm text-muted">No matches.</li>
           ) : (
             results.map((c, i) => (
-              <li key={c.href}>
+              <li key={c.href} id={`command-option-${i}`}>
                 <button
                   type="button"
-                  onClick={() => {
-                    setOpen(false);
-                    setQuery("");
-                    router.push(c.href);
-                  }}
+                  onClick={() => go(c.href)}
+                  onMouseEnter={() => setActive(i)}
                   className={cn(
-                    "flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-surface",
-                    i === 0 && !query ? "bg-surface/60" : "",
+                    "flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors",
+                    i === active ? "bg-surface text-ink" : "text-ink-secondary",
                   )}
+                  aria-current={i === active}
                 >
-                  <span className="text-ink">{c.label}</span>
-                  <span className="flex items-center gap-2">
-                    <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
-                      {c.hint}
-                    </span>
-                    {i === 0 ? <CornerDownLeft size={13} className="text-faint" aria-hidden /> : null}
+                  <span className="flex items-center gap-2.5">
+                    {i === active ? <CornerDownLeft size={13} className="shrink-0 text-faint" aria-hidden /> : null}
+                    <span className={i === active ? "font-medium" : ""}>{c.label}</span>
+                  </span>
+                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-faint">
+                    {c.hint}
                   </span>
                 </button>
               </li>

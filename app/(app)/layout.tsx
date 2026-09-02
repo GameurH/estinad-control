@@ -17,14 +17,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login?error=access_denied");
   }
 
+  const showOperators = admin.role === "super_admin";
+
   return (
     <div className="flex min-h-screen bg-bg">
-      <Sidebar showOperators={admin.role === "super_admin"} />
+      <Sidebar showOperators={showOperators} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar email={admin.email} name={admin.name} role={admin.role} />
+        <Topbar email={admin.email} name={admin.name} role={admin.role} showOperators={showOperators} />
         <main className="min-w-0 flex-1">{children}</main>
       </div>
-      <CommandPalette />
+      <CommandPalette showOperators={showOperators} />
     </div>
   );
 }

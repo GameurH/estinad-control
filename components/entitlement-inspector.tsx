@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Chip } from "@/components/ui";
 import { CopyButton } from "@/components/copy-button";
 
 /**
@@ -18,9 +19,15 @@ export function EntitlementInspector({
 
   if (!payload) {
     return (
-      <div className="hairline bg-surface px-4 py-6 text-center text-sm text-muted">
-        No signed snapshot on record yet. It is built on first activation/validation by the
-        licensing backend.
+      <div className="hairline bg-surface px-4 py-8 text-center">
+        <div
+          className="mx-auto mb-3 h-1.5 w-1.5 rotate-45 border border-line-strong"
+          aria-hidden
+        />
+        <p className="text-sm leading-relaxed text-muted">
+          No signed snapshot on record yet. It is built on first activation/validation by the
+          licensing backend.
+        </p>
       </div>
     );
   }
@@ -29,22 +36,28 @@ export function EntitlementInspector({
 
   return (
     <div className="hairline bg-card">
-      <div className="hairline-b flex items-center justify-between bg-surface-2/60 px-3 py-2">
-        <div className="flex items-center gap-3">
+      <div className="hairline-b flex flex-wrap items-center justify-between gap-x-3 gap-y-2 bg-surface-2/60 px-3 py-2">
+        <div className="flex min-w-0 items-center gap-3">
           <p className="eyebrow">Entitlement snapshot</p>
-          <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+          <span className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-faint">
             signed · read-only
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setRaw((v) => !v)}
-            className="hairline h-7 bg-bg px-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted transition-colors hover:text-ink"
-            aria-pressed={raw}
+        <div className="flex items-center gap-1.5">
+          <Chip
+            active={!raw}
+            onClick={() => setRaw(false)}
+            className="h-8 px-2 text-[0.65rem] uppercase tracking-[0.14em] sm:h-7"
           >
-            {raw ? "Structured" : "Raw"}
-          </button>
+            Structured
+          </Chip>
+          <Chip
+            active={raw}
+            onClick={() => setRaw(true)}
+            className="h-8 px-2 text-[0.65rem] uppercase tracking-[0.14em] sm:h-7"
+          >
+            Raw
+          </Chip>
           <CopyButton value={JSON.stringify(payload, null, 2)} label="Copy payload" />
         </div>
       </div>

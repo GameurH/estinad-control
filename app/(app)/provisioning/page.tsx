@@ -5,6 +5,7 @@ import { ProvisionForms } from "./provision-forms";
 import {
   EmptyState,
   Mono,
+  PageBody,
   PageHeader,
   Panel,
   PanelHeader,
@@ -39,7 +40,7 @@ export default async function ProvisioningPage() {
         description="Create tenants and issue licenses. Delegates to the existing provisioning RPCs — the licensing logic stays in the backend."
       />
 
-      <div className="space-y-6 px-6 py-6 lg:px-8">
+      <PageBody>
         <Panel>
           <PanelHeader title="Provision" meta="server-side · audited" />
           <ProvisionForms tenants={tenants} />
@@ -50,7 +51,10 @@ export default async function ProvisioningPage() {
             title="Provisioning history"
             meta={`${provisioningHistory.length} recent events`}
             actions={
-              <Link href="/audit" className="text-xs text-muted underline hover:text-ink">
+              <Link
+                href="/audit"
+                className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted transition-colors hover:text-ink"
+              >
                 Full audit log →
               </Link>
             }
@@ -61,22 +65,25 @@ export default async function ProvisioningPage() {
               description="Provision a tenant above; events appear here immediately."
             />
           ) : (
-            <ul className="divide-y divide-[var(--color-line)]">
+            <ul className="divide-line divide-y">
               {provisioningHistory.map((a) => (
-                <li key={a.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3">
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <Mono className="text-ink">{a.action}</Mono>
+                <li
+                  key={a.id}
+                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3 transition-colors hover:bg-surface"
+                >
+                  <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <Mono className="text-[0.65rem] text-ink">{a.action}</Mono>
                     {a.tenants ? (
                       <Link
                         href={`/tenants/${a.tenant_id}`}
-                        className="text-sm text-ink-secondary hover:text-ink hover:underline"
+                        className="truncate text-sm text-ink-secondary transition-colors hover:text-ink hover:underline"
                       >
                         {a.tenants.name}
                       </Link>
                     ) : null}
                     <Tag>{a.actor_type}</Tag>
                     {a.details && typeof a.details === "object" && "license_key" in a.details ? (
-                      <Mono className="text-[0.65rem]">{String(a.details.license_key)}</Mono>
+                      <Mono className="text-[0.65rem] text-faint">{String(a.details.license_key)}</Mono>
                     ) : null}
                   </div>
                   <Mono className="text-[0.65rem] text-faint">{formatDateTime(a.created_at)}</Mono>
@@ -85,7 +92,7 @@ export default async function ProvisioningPage() {
             </ul>
           )}
         </Panel>
-      </div>
+      </PageBody>
     </>
   );
 }

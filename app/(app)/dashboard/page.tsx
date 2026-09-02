@@ -2,10 +2,14 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/rbac";
 import { getDashboardData } from "@/lib/licensing/queries";
 import {
-  DetailGrid,
+  CardList,
+  CardRow,
   DetailCell,
+  DetailGrid,
+  EmptyState,
   LicenseStatusBadge,
   Mono,
+  PageBody,
   PageHeader,
   Panel,
   PanelHeader,
@@ -14,7 +18,6 @@ import {
   Td,
   Th,
   Tr,
-  EmptyState,
 } from "@/components/ui";
 import { daysUntil, formatDate, formatRelative, shortHash } from "@/lib/utils";
 
@@ -37,7 +40,7 @@ export default async function DashboardPage() {
         description="Live commercial state of the ESTINAD estate — tenants, licenses, devices."
       />
 
-      <div className="rise space-y-6 px-6 py-6 lg:px-8">
+      <PageBody className="rise">
         {/* Stat row — hairline grid */}
         <div className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
           <Stat
@@ -76,67 +79,108 @@ export default async function DashboardPage() {
                 description="Active licenses are comfortably inside their term."
               />
             ) : (
-              <TableWrap>
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <Th>Tenant</Th>
-                      <Th>License</Th>
-                      <Th>Kind</Th>
-                      <Th>Status</Th>
-                      <Th>Expires</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.expiringSoon.map((l) => {
-                      const days = daysUntil(l.expires_at);
-                      return (
-                        <Tr key={l.id}>
-                          <Td>
+              <>
+                <div className="hidden md:block">
+                  <TableWrap>
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          <Th scope="col">Tenant</Th>
+                          <Th scope="col">License</Th>
+                          <Th scope="col">Kind</Th>
+                          <Th scope="col">Status</Th>
+                          <Th scope="col">Expires</Th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.expiringSoon.map((l) => {
+                          const days = daysUntil(l.expires_at);
+                          return (
+                            <Tr key={l.id}>
+                              <Td>
+                                <Link
+                                  href={`/tenants/${l.tenants?.id ?? l.tenant_id}`}
+                                  className="font-medium text-ink hover:underline"
+                                >
+                                  {l.tenants?.name ?? <span className="text-faint">—</span>}
+                                </Link>
+                                <Mono className="block text-[0.65rem] text-faint">
+                                  {l.tenants?.slug ?? ""}
+                                </Mono>
+                              </Td>
+                              <Td>
+                                <Link
+                                  href={`/licenses/${l.id}`}
+                                  className="block max-w-[14rem] truncate font-mono text-xs text-ink-secondary hover:text-ink"
+                                >
+                                  {l.license_key}
+                                </Link>
+                              </Td>
+                              <Td>
+                                <Mono className="uppercase">{l.kind}</Mono>
+                              </Td>
+                              <Td>
+                                <LicenseStatusBadge status={l.status} />
+                              </Td>
+                              <Td>
+                                {formatDate(l.expires_at)}
+                                <span
+                                  className={`ml-2 font-mono text-[0.65rem] ${
+                                    days !== null && days <= 7 ? "text-danger" : "text-warn"
+                                  }`}
+                                >
+                                  {days}d
+                                </span>
+                              </Td>
+                            </Tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </TableWrap>
+                </div>
+
+                {/* Mobile cards */}
+                <CardList>
+                  {data.expiringSoon.map((l) => {
+                    const days = daysUntil(l.expires_at);
+                    return (
+                      <CardRow key={l.id}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
                             <Link
                               href={`/tenants/${l.tenants?.id ?? l.tenant_id}`}
-                              className="font-medium text-ink hover:underline"
+                              className="block truncate font-medium text-ink hover:underline"
                             >
-                              {l.tenants?.name ?? "—"}
+                              {l.tenants?.name ?? <span className="text-faint">—</span>}
                             </Link>
-                            <Mono className="block text-[0.65rem] text-faint">
-                              {l.tenants?.slug ?? ""}
-                            </Mono>
-                          </Td>
-                          <Td>
                             <Link
                               href={`/licenses/${l.id}`}
-                              className="font-mono text-xs text-ink-secondary hover:text-ink"
+                              className="mt-0.5 block truncate font-mono text-xs text-ink-secondary hover:text-ink"
                             >
                               {l.license_key}
                             </Link>
-                          </Td>
-                          <Td>
-                            <Mono className="uppercase">{l.kind}</Mono>
-                          </Td>
-                          <Td>
+                          </div>
+                          <div className="flex shrink-0 flex-col items-end gap-1.5">
                             <LicenseStatusBadge status={l.status} />
-                          </Td>
-                          <Td>
-                            {formatDate(l.expires_at)}
-                            <span
-                              className="ml-2 font-mono text-[0.65rem]"
-                              style={{
-                                color:
-                                  days !== null && days <= 7
-                                    ? "var(--status-danger-fg)"
-                                    : "var(--status-warn-fg)",
-                              }}
-                            >
-                              {days}d
-                            </span>
-                          </Td>
-                        </Tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </TableWrap>
+                            <Mono className="uppercase text-faint">{l.kind}</Mono>
+                          </div>
+                        </div>
+                        <div className="hairline-t mt-3 flex items-center justify-between pt-2.5 text-xs">
+                          <span className="text-muted">Expires {formatDate(l.expires_at)}</span>
+                          <span
+                            className={`font-mono text-[0.65rem] ${
+                              days !== null && days <= 7 ? "text-danger" : "text-warn"
+                            }`}
+                          >
+                            {days}d
+                          </span>
+                        </div>
+                      </CardRow>
+                    );
+                  })}
+                </CardList>
+              </>
             )}
           </Panel>
 
@@ -198,12 +242,17 @@ export default async function DashboardPage() {
           {data.recentAudit.length === 0 ? (
             <EmptyState title="No activity recorded yet." />
           ) : (
-            <ul className="divide-y divide-[var(--color-line)]">
+            <ul className="divide-y divide-line">
               {data.recentAudit.map((a) => (
-                <li key={a.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3">
-                  <div>
+                <li
+                  key={a.id}
+                  className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4 py-3"
+                >
+                  <div className="min-w-0">
                     <Mono className="text-ink">{a.action}</Mono>
-                    <span className="mx-2 text-faint">·</span>
+                    <span className="mx-2 text-faint" aria-hidden>
+                      ·
+                    </span>
                     {a.tenants ? (
                       <Link
                         href={`/tenants/${a.tenant_id}`}
@@ -216,18 +265,24 @@ export default async function DashboardPage() {
                     )}
                     {a.actor_email ? (
                       <>
-                        <span className="mx-2 text-faint">·</span>
-                        <Mono className="text-[0.65rem] text-faint">{shortHash(a.actor_email, 22)}</Mono>
+                        <span className="mx-2 text-faint" aria-hidden>
+                          ·
+                        </span>
+                        <Mono className="text-[0.65rem] text-faint">
+                          {shortHash(a.actor_email, 22)}
+                        </Mono>
                       </>
                     ) : null}
                   </div>
-                  <Mono className="text-[0.65rem] text-faint">{formatRelative(a.created_at)}</Mono>
+                  <Mono className="shrink-0 text-[0.65rem] text-faint">
+                    {formatRelative(a.created_at)}
+                  </Mono>
                 </li>
               ))}
             </ul>
           )}
         </Panel>
-      </div>
+      </PageBody>
     </>
   );
 }

@@ -2,38 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Building2,
-  CreditCard,
-  KeyRound,
-  MonitorSmartphone,
-  FileJson2,
-  Rocket,
-  ScrollText,
-  ShieldCheck,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Monogram } from "@/components/monogram";
-
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/tenants", label: "Tenants", icon: Building2 },
-  { href: "/subscriptions", label: "Subscriptions", icon: CreditCard },
-  { href: "/licenses", label: "Licenses", icon: KeyRound },
-  { href: "/devices", label: "Devices", icon: MonitorSmartphone },
-  { href: "/entitlements", label: "Entitlements", icon: FileJson2 },
-  { href: "/provisioning", label: "Provisioning", icon: Rocket },
-  { href: "/audit", label: "Audit Log", icon: ScrollText },
-] as const;
-
-const SUPER_ADMIN_NAV = [
-  { href: "/operators", label: "Operators", icon: ShieldCheck },
-] as const;
+import { getNav } from "./nav-items";
 
 export function Sidebar({ showOperators = false }: { showOperators?: boolean }) {
   const pathname = usePathname();
-  const nav = showOperators ? [...NAV, ...SUPER_ADMIN_NAV] : NAV;
+  const nav = getNav(showOperators);
 
   return (
     <aside className="hairline-e sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-bg md:flex">
@@ -57,22 +32,14 @@ export function Sidebar({ showOperators = false }: { showOperators?: boolean }) 
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-3 px-5 py-2 text-sm transition-colors",
+                    "flex min-h-9 items-center gap-3 border-l-2 pl-[18px] pr-5 text-sm transition-colors",
                     active
-                      ? "bg-surface font-medium text-ink"
-                      : "text-muted hover:text-ink",
+                      ? "border-accent bg-surface font-medium text-ink"
+                      : "border-transparent text-muted hover:text-ink",
                   )}
                 >
                   <Icon size={15} strokeWidth={1.75} aria-hidden />
-                  <span className="relative">
-                    {label}
-                    {active ? (
-                      <span
-                        className="absolute -left-5 top-1/2 h-3 w-px -translate-y-1/2 bg-ink"
-                        aria-hidden
-                      />
-                    ) : null}
-                  </span>
+                  {label}
                 </Link>
               </li>
             );
@@ -81,7 +48,7 @@ export function Sidebar({ showOperators = false }: { showOperators?: boolean }) 
       </nav>
 
       <div className="hairline-t px-5 py-4">
-        <p className="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-faint">
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-faint">
           control.estinad.com
         </p>
       </div>
