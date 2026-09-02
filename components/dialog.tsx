@@ -69,7 +69,7 @@ export function Dialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/60 px-4 py-6"
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-scrim px-4 py-6"
       onClick={onClose}
       role="presentation"
     >

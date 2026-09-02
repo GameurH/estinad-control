@@ -1,23 +1,77 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ESTINAD Control — Dark Architectural Console
-   Ground and accent palette from the SaharaOS design system
-   (sahara_ui SaharaColors): zinc neutrals on a near-black
-   "void", pure white primary accent (Linear-style), one
-   restrained set of status colors. Depth from hairlines and
-   elevation, never from color.
+   ESTINAD Control — Architectural Console
+   Ground and accent palettes from the SaharaOS design system
+   (sahara_ui SaharaColors): zinc neutrals, black/white primary
+   accent (Linear-style), restrained status chroma. Depth from
+   hairlines and elevation, never from color.
+
+   Theming: tokens are declared on :root (light) and overridden
+   on .dark (set on <html> before paint by an inline script).
+   Every component consumes token utilities, so theme switching
+   is a pure variable swap.
    ============================================================ */
 
 :root {
-  /* Ground — SaharaOS zinc scale, lightness carries hierarchy.
-     Values from sahara_ui/lib/src/theme/sahara_colors.dart */
+  color-scheme: light;
+
+  /* Ground — SaharaOS light zinc scale */
+  --color-bg: #fcfcfc; /* bgPrimaryLight */
+  --color-surface: #f5f5f5; /* bands, hover rows — bgLight */
+  --color-surface-2: #edeef0; /* recessed, table headers, inputs, hovers — bgSurfaceLight */
+  --color-card: #fafafa; /* bgSecondaryLight — zinc 50 */
+
+  /* Ink — light text hierarchy */
+  --color-ink: #08090a; /* textPrimaryLight */
+  --color-ink-secondary: #4b5563; /* textSecondaryLight */
+  --color-muted: #71717a; /* textMuted — zinc 500 (legible on both themes) */
+  --color-faint: #a1a1aa; /* decoration and micro-meta only — zinc 400 */
+
+  /* Hairlines */
+  --color-line: #e2e8f0; /* borderLight */
+  --color-line-strong: #d4d4d8; /* zinc 300 */
+
+  /* Accent — SaharaOS light-theme primary: perfect black */
+  --color-accent: #000000; /* accentLight */
+  --color-accent-hover: #1a1a1a; /* accentLightHover */
+  --color-accent-ink: #ffffff; /* text rendered on accent */
+
+  /* Status semantics — the only other chroma. Light-theme
+     foregrounds on quiet light tints. */
+  --status-ok-fg: #059669; /* successLight — Emerald 600 */
+  --status-ok-bg: #e8f6ef;
+  --status-warn-fg: #b45309; /* Amber 700 — legible at micro sizes */
+  --status-warn-bg: #fbf1e2;
+  --status-danger-fg: #dc2626; /* errorLight — Red 600 */
+  --status-danger-bg: #fdecec;
+  --status-neutral-fg: #52525b; /* zinc 600 */
+  --status-neutral-bg: #f0f0f2;
+  --status-info-fg: #2563eb; /* Blue 600 — legible at micro sizes */
+  --status-info-bg: #eaf1fc;
+
+  /* Modal scrim */
+  --color-scrim: rgb(0 0 0 / 0.35);
+
+  --radius: 2px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.08);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  /* Ground — SaharaOS dark zinc scale */
   --color-bg: #09090b; /* bgPrimary — zinc 950 "The Void" */
   --color-surface: #191919; /* bands, hover rows — tableHeader */
   --color-surface-2: #27272a; /* recessed, table headers, inputs, hovers — bgSurface, zinc 800 */
   --color-card: #0f0f0f; /* bgSecondary — sidebars, cards */
 
-  /* Ink — zinc text hierarchy */
+  /* Ink — dark text hierarchy */
   --color-ink: #fafafa; /* textPrimary — zinc 50 */
   --color-ink-secondary: #a1a1aa; /* textSecondary — zinc 400 */
   --color-muted: #71717a; /* textMuted — zinc 500 */
@@ -27,14 +81,12 @@
   --color-line: #282828; /* border */
   --color-line-strong: #3f3f46; /* zinc 700 */
 
-  /* Accent — SaharaOS dark-theme primary: pure white for primary
-     actions. Never used decoratively, never for large surfaces. */
+  /* Accent — SaharaOS dark-theme primary: pure white */
   --color-accent: #ffffff; /* accentDark */
   --color-accent-hover: #e5e5e5; /* accentDarkHover */
   --color-accent-ink: #09090b; /* text rendered on accent */
 
-  /* Status semantics — the only other chroma. Foregrounds from
-     SaharaColors (Emerald/Amber/Red/Blue 500) on quiet zinc-dark tints. */
+  /* Status semantics — SaharaColors 500s on quiet zinc-dark tints */
   --status-ok-fg: #10b981; /* success — Emerald 500 */
   --status-ok-bg: #10231a;
   --status-warn-fg: #f59e0b; /* warning — Amber 500 */
@@ -46,13 +98,11 @@
   --status-info-fg: #3b82f6; /* info — Blue 500 */
   --status-info-bg: #14202e;
 
-  --radius: 2px;
+  /* Modal scrim */
+  --color-scrim: rgb(0 0 0 / 0.6);
+
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
   --shadow-lift: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.45);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 @theme inline {
@@ -79,6 +129,7 @@
   --color-info-bg: var(--status-info-bg);
   --color-neutral: var(--status-neutral-fg);
   --color-neutral-bg: var(--status-neutral-bg);
+  --color-scrim: var(--color-scrim);
   --shadow-card: var(--shadow-card);
   --shadow-lift: var(--shadow-lift);
   --font-sans: var(--font-geist-sans);
@@ -95,7 +146,6 @@
     color: var(--color-ink);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    color-scheme: dark;
     overflow-x: clip;
   }
 
@@ -179,11 +229,17 @@
     background-position: -1px -1px;
   }
 
-  /* Logo lockup — dark theme: the light plate mark reads as-is on the
-     charcoal ground with a soft screen blend to drop the plate edges. */
+  /* Logo lockup — the mark is a light plate on a dark ground.
+     Light theme: multiply + invert leaves the interlocking E/T
+     geometry on light grounds (shared ESTINAD rule).
+     Dark theme: screen + invert reads the mark on the void. */
   .logo-lockup-image {
-    mix-blend-mode: screen;
+    mix-blend-mode: multiply;
     filter: invert(1) contrast(1.05);
+  }
+
+  :root.dark .logo-lockup-image {
+    mix-blend-mode: screen;
   }
 
   @keyframes control-rise {

@@ -56,7 +56,7 @@ export function MobileNav({ showOperators = false }: { showOperators?: boolean }
         ? createPortal(
             <div className="fixed inset-0 z-50 md:hidden" role="presentation">
               <div
-                className="absolute inset-0 bg-black/60"
+                className="absolute inset-0 bg-scrim"
                 onClick={close}
                 aria-hidden
               />

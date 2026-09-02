@@ -65,7 +65,7 @@ export function CommandPalette({ showOperators = false }: { showOperators?: bool
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/60 px-4 pt-[12vh]"
+      className="fixed inset-0 z-50 bg-scrim px-4 pt-[12vh]"
       onClick={() => setOpen(false)}
       role="presentation"
     >
