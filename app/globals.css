@@ -2,47 +2,49 @@
 
 /* ============================================================
    ESTINAD Control — Dark Architectural Console
-   Near-black warm charcoal ground, warm ivory ink, muted gray
-   hierarchy, one restrained brass accent for primary actions.
-   Depth from hairlines and elevation, never from color. Color
-   appears only as restrained status semantics.
+   Ground and accent palette from the SaharaOS design system
+   (sahara_ui SaharaColors): zinc neutrals on a near-black
+   "void", pure white primary accent (Linear-style), one
+   restrained set of status colors. Depth from hairlines and
+   elevation, never from color.
    ============================================================ */
 
 :root {
-  /* Ground — warm charcoal scale, lightness carries hierarchy */
-  --color-bg: #141312;
-  --color-surface: #1a1917; /* hover rows, alternating bands */
-  --color-surface-2: #201e1c; /* recessed areas, table headers, inputs */
-  --color-card: #191817;
+  /* Ground — SaharaOS zinc scale, lightness carries hierarchy.
+     Values from sahara_ui/lib/src/theme/sahara_colors.dart */
+  --color-bg: #09090b; /* bgPrimary — zinc 950 "The Void" */
+  --color-surface: #191919; /* bands, hover rows — tableHeader */
+  --color-surface-2: #27272a; /* recessed, table headers, inputs, hovers — bgSurface, zinc 800 */
+  --color-card: #0f0f0f; /* bgSecondary — sidebars, cards */
 
-  /* Ink — warm ivory foreground, muted gray hierarchy */
-  --color-ink: #ede8df;
-  --color-ink-secondary: #b8b0a4;
-  --color-muted: #8b8478;
-  --color-faint: #6e675d; /* decoration and micro-meta only */
+  /* Ink — zinc text hierarchy */
+  --color-ink: #fafafa; /* textPrimary — zinc 50 */
+  --color-ink-secondary: #a1a1aa; /* textSecondary — zinc 400 */
+  --color-muted: #71717a; /* textMuted — zinc 500 */
+  --color-faint: #52525b; /* decoration and micro-meta only — zinc 600 */
 
   /* Hairlines */
-  --color-line: #2a2825;
-  --color-line-strong: #3b3833;
+  --color-line: #282828; /* border */
+  --color-line-strong: #3f3f46; /* zinc 700 */
 
-  /* Accent — the single chromatic voice for primary actions.
-     Never used decoratively, never for large surfaces. */
-  --color-accent: #c99e63;
-  --color-accent-hover: #d8ad72;
-  --color-accent-ink: #171410; /* text rendered on accent */
+  /* Accent — SaharaOS dark-theme primary: pure white for primary
+     actions. Never used decoratively, never for large surfaces. */
+  --color-accent: #ffffff; /* accentDark */
+  --color-accent-hover: #e5e5e5; /* accentDarkHover */
+  --color-accent-ink: #09090b; /* text rendered on accent */
 
-  /* Status semantics — the only other chroma. Desaturated,
-     console-grade; foreground/background pairs. */
-  --status-ok-fg: #85bd97;
-  --status-ok-bg: #1d2b22;
-  --status-warn-fg: #d2ab64;
-  --status-warn-bg: #2b2415;
-  --status-danger-fg: #d98b80;
-  --status-danger-bg: #32201d;
-  --status-neutral-fg: #a39b8f;
-  --status-neutral-bg: #262420;
-  --status-info-fg: #93a9cc;
-  --status-info-bg: #202836;
+  /* Status semantics — the only other chroma. Foregrounds from
+     SaharaColors (Emerald/Amber/Red/Blue 500) on quiet zinc-dark tints. */
+  --status-ok-fg: #10b981; /* success — Emerald 500 */
+  --status-ok-bg: #10231a;
+  --status-warn-fg: #f59e0b; /* warning — Amber 500 */
+  --status-warn-bg: #261f0d;
+  --status-danger-fg: #ef4444; /* error — Red 500 */
+  --status-danger-bg: #2b1512;
+  --status-neutral-fg: #a1a1aa; /* zinc 400 */
+  --status-neutral-bg: #1c1c1f;
+  --status-info-fg: #3b82f6; /* info — Blue 500 */
+  --status-info-bg: #14202e;
 
   --radius: 2px;
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
