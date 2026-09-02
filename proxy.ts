@@ -46,6 +46,7 @@ export async function proxy(request: NextRequest) {
       "/entitlements",
       "/provisioning",
       "/audit",
+      "/operators",
     ].some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
   if (!user && isProtected) {

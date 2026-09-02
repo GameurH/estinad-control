@@ -8,10 +8,11 @@ export type Permission =
   | "read" // browse every section
   | "manage_licenses" // renew, suspend, revoke, unbind device
   | "manage_subscriptions" // activate, suspend, cancel tenants
-  | "provision"; // provision new tenants / issue licenses / reset devices
+  | "provision" // provision new tenants / issue licenses / reset devices
+  | "manage_admins"; // invite / remove platform operators
 
 const ROLE_PERMISSIONS: Record<PlatformAdminRole, Permission[]> = {
-  super_admin: ["read", "manage_licenses", "manage_subscriptions", "provision"],
+  super_admin: ["read", "manage_licenses", "manage_subscriptions", "provision", "manage_admins"],
   admin: ["read", "manage_licenses", "manage_subscriptions", "provision"],
   support: ["read"],
 };

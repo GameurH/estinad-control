@@ -26,6 +26,14 @@ Tenant → Subscription → Provisioning → License → Device → Entitlement 
 | `/entitlements` | Signed snapshot inspection (read-only) |
 | `/provisioning` | New tenant + license issuance (existing RPCs), provisioning history |
 | `/audit` | `tenant_audit_log` browser with filters |
+| `/operators` | Operator management: Google/email access, invites, roles (super_admin only) |
+
+### Sign-in options
+- **Email + password** — Supabase Auth
+- **Google OAuth** — one-click; the `/auth/callback` route enforces the platform-admin gate server-side (non-admin Google accounts are signed out immediately)
+
+### Inviting operators
+A `super_admin` opens **Operators** and sends an email invite with a role (`admin` or `support`). Supabase sends the invite email; the `platform_admins` row is created up-front so access exists on acceptance. Removal deletes the operator row (access ends instantly; self-removal and removing the last super_admin are blocked). Everything is audited.
 
 ## Stack
 
@@ -58,6 +66,17 @@ Tenant → Subscription → Provisioning → License → Device → Entitlement 
    admin's identity, IP and user agent (`lib/audit.ts`).
 5. **Secrets** — the signing private key and service-role key never leave the server.
    Signatures are displayed read-only; the entitlement payload is never editable here.
+
+### Google provider setup (one-time, Supabase dashboard → `rms` project)
+1. **Auth → Providers → Google**: enable and paste an OAuth 2.0 Client ID/Secret
+   (Google Cloud Console → Credentials → OAuth client, type Web).
+2. **Auth → URL Configuration**: allow `<site>/auth/callback` for every origin you
+   serve Control from (e.g. `https://control.estinad.com/auth/callback`,
+   `http://localhost:3010/auth/callback`).
+3. In Google Cloud Console, add the Supabase redirect URI
+   (`https://<ref>.supabase.co/auth/v1/callback`) as an authorized redirect URI.
+4. Invites require working SMTP (Supabase built-in works for small teams; configure
+   custom SMTP for production deliverability).
 
 ## Setup
 

@@ -11,6 +11,7 @@ import {
   FileJson2,
   Rocket,
   ScrollText,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,8 +26,13 @@ const NAV = [
   { href: "/audit", label: "Audit Log", icon: ScrollText },
 ] as const;
 
-export function Sidebar() {
+const SUPER_ADMIN_NAV = [
+  { href: "/operators", label: "Operators", icon: ShieldCheck },
+] as const;
+
+export function Sidebar({ showOperators = false }: { showOperators?: boolean }) {
   const pathname = usePathname();
+  const nav = showOperators ? [...NAV, ...SUPER_ADMIN_NAV] : NAV;
 
   return (
     <aside className="hairline-e sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-bg md:flex">
@@ -39,7 +45,7 @@ export function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto py-4" aria-label="Primary">
         <ul>
-          {NAV.map(({ href, label, icon: Icon }) => {
+          {nav.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <li key={href}>
