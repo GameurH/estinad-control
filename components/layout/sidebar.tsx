@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Monogram } from "@/components/monogram";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -37,9 +38,12 @@ export function Sidebar({ showOperators = false }: { showOperators?: boolean }) 
   return (
     <aside className="hairline-e sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-bg md:flex">
       <div className="hairline-b flex h-14 shrink-0 items-center px-5">
-        <Link href="/dashboard" className="block" aria-label="ESTINAD Control home">
-          <p className="font-mono text-xs font-semibold tracking-[0.3em] text-ink">ESTINAD</p>
-          <p className="eyebrow mt-0.5">Control · Ops</p>
+        <Link href="/dashboard" className="flex items-center gap-3" aria-label="ESTINAD Control home">
+          <Monogram className="h-6 w-6" />
+          <span className="block">
+            <span className="block font-mono text-xs font-semibold tracking-[0.3em] text-ink">ESTINAD</span>
+            <span className="eyebrow mt-0.5 block">Control · Ops</span>
+          </span>
         </Link>
       </div>
 

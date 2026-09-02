@@ -141,6 +141,13 @@
     background-position: -1px -1px;
   }
 
+  /* Logo lockup — light theme treatment (multiply + invert leaves the
+     monogram geometry; shared ESTINAD rule from estinad-landing). */
+  .logo-lockup-image {
+    mix-blend-mode: multiply;
+    filter: invert(1);
+  }
+
   @keyframes control-rise {
     from {
       opacity: 0;

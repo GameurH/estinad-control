@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LoginForm } from "./login-form";
+import { Monogram } from "@/components/monogram";
 
 export const metadata: Metadata = { title: "Sign in" };
 
@@ -16,6 +17,7 @@ export default async function LoginPage({
       <div className="rise relative w-full max-w-sm">
         <div className="hairline bg-card p-8 shadow-lift">
           <div className="mb-8">
+            <Monogram className="mb-4 h-9 w-9" alt="ESTINAD" />
             <p className="eyebrow mb-3">ESTINAD · Internal</p>
             <h1 className="text-2xl font-semibold tracking-tight text-ink">Control</h1>
             <p className="mt-2 text-sm text-muted">
